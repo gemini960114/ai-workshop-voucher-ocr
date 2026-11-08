@@ -1,0 +1,17 @@
+[project]
+name = "ai-workshop-voucher-ocr"
+version = "0.1.0"
+description = "AI Workshop：使用 NCHC GenAI Portal 模型與 Agent Skill 辨識核銷憑證並整理自動立帳資料"
+readme = "README.md"
+authors = [
+    { name = "gemini960114", email = "232852412+gemini960114@users.noreply.github.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "openai>=3.46.0",
+    "openpyxl>=3.1.5",
+    "pillow>=13.0.0",
+    "pymupdf>=2.1",
+    "python-dotenv>=1.2.4",
+]
+

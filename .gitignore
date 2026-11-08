@@ -1,0 +1,24 @@
+# Environment & Secrets
+.env
+*.key
+
+# Python / uv
+.venv/
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.pytest_cache/
+
+
+# Claude Code（本機快取、設定與 junction）
+.claude/
+
+# Skill 產出（憑證辨識結果，含真實財務資料）
+output/
+
+# OCR 測試／比較輸出（可能含真實財務資料）
+output_*/
+
+# 真實核銷憑證與帳務規格（含廠商、帳號、ERP 密碼等，只放本機，不上傳）
+example/
+demo/

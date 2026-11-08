@@ -1,0 +1,50 @@
+# OCR 核銷憑證辨識設定檔
+# 每個階段都可指定不同模型與端點（任何 OpenAI 相容 API：NCHC portal、vLLM、Ollama…）。
+#   base_url    留空 = 使用 .env 的 OPENAI_BASE_URL
+#   api_key_env 讀取金鑰的環境變數名稱（地端模型不需金鑰時可指向任意非空變數）
+#   max_tokens  模型輸出上限。夠用即可，不要設太大：輸入＋上限超過模型容量時，部分模型會悄悄丟掉圖片
+#               （實測 chandra-ocr-2 設 24000 以上就看不到圖）；上限也能防止模型陷入重複輸出時卡住
+
+[ocr]
+# 第一步（選用）：整頁轉文字。model 留空 = 跳過此步，由 [extract] 的模型直接看圖擷取欄位（預設，較快）
+# 改成 "chandra-ocr-2" = 先整頁 OCR 再擷取，會在 output/ocr/ 保留整頁辨識原文（較慢，適合需要稽核紀錄時）
+model = ""
+base_url = ""
+api_key_env = "OPENAI_API_KEY"
+max_tokens = 16000  # chandra-ocr-2 實測可正常讀圖的最高值；整頁 OCR 實際約用 2000–4000
+dpi = 150
+
+[extract]
+# 第二步：擷取欄位，回傳 JSON（直接看圖，或讀第一步的 OCR 文字）
+model = "Muse-Spark-Open-816B-A42B"
+base_url = ""
+api_key_env = "OPENAI_API_KEY"
+max_tokens = 32000  # 實際約用 500–3000
+
+[verify]
+# 第三步（選用）：另一個視覺模型直接看圖複讀關鍵號碼與金額，與第二步比對。model 留空 = 不複核
+model = "Muse-Glimmer-30B"
+base_url = ""
+api_key_env = "OPENAI_API_KEY"
+max_tokens = 32000  # Glimmer 會先推理，實際約用 3600；過小（如 1000）會來不及作答
+
+[org]
+# 買方（本單位）統編：用來核對、並避免把買方統編誤填到「發票統編」（發票統編 = 賣方）
+buyer_ubns = [
+  "80778299",  # 國網中心
+  "81924865",  # example_deid/ 去識別化樣本的虛構單位（測試用）
+]
+# 本單位全名：讀到的「發票抬頭」與此不同時標黃（常見情況：手寫兩行只讀到一行）
+buyer_names = [
+  "財團法人國家實驗研究院國家高速網路與計算中心",
+  "財團法人未來科技研究院智慧雲端運算中心",  # example_deid/ 虛構單位（測試用）
+]
+
+[fields]
+liability_account = "03-0000-0000000000-0000-21410109-00-00"  # 負債科目（固定值）
+receipt_invoice_no = "收據"  # 免用發票收據沒有發票號碼時填入的文字
+
+[run]
+concurrency = 2  # 同時處理的 PDF 數
+output_dir = "output"
+excel_name = "核銷彙整.xlsx"
